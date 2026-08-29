@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>❤️ Secret Love Finder ❤️</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff1744,
+            #7b2cff
+        );
+
+    color: white;
+    text-align: center;
+}
+
+.box {
+    width: 92%;
+    max-width: 430px;
+
+    padding: 30px 25px;
+
+    background: rgba(0,0,0,.4);
+
+    border-radius: 25px;
+
+    box-shadow:
+        0 15px 40px rgba(0,0,0,.4);
+}
+
+h1 {
+    font-size: 30px;
+}
+
+input {
+    width: 100%;
+
+    padding: 15px;
+
+    margin: 12px 0;
+
+    border: none;
+
+    border-radius: 12px;
+
+    font-size: 17px;
+
+    outline: none;
+}
+
+button {
+    width: 100%;
+
+    padding: 15px;
+
+    margin-top: 8px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: white;
+
+    color: #ff1744;
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+button:active {
+    transform: scale(.97);
+}
+
+.step {
+    display: none;
+}
+
+.active {
+    display: block;
+}
+
+#loading,
+#result,
+#admin {
+    display: none;
+}
+
+.heart {
+    font-size: 70px;
+
+    animation:
+        beat .8s infinite;
+}
+
+.prank {
+    font-size: 24px;
+
+    font-weight: bold;
+
+    margin: 20px 0;
+}
+
+.entry {
+    background:
+        rgba(255,255,255,.12);
+
+    padding: 12px;
+
+    margin: 8px 0;
+
+    border-radius: 10px;
+
+    text-align: left;
+}
+
+.small {
+    font-size: 12px;
+
+    opacity: .7;
+}
+
+.adminButton {
+    margin-top: 20px;
+
+    background: rgba(255,255,255,.2);
+
+    color: white;
+}
+
+@keyframes beat {
+
+    50% {
+        transform: scale(1.2);
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<div class="box">
+
+
+<h1>
+❤️ Secret Love Finder ❤️
+</h1>
+
+
+<p>
+Find your secret love connection 😏
+</p>
+
+
+<!-- ==============================
+     STEP 1
+============================== -->
+
+<div
+    id="step1"
+    class="step active"
+>
+
+<h2>
+👤 What's your name?
+</h2>
+
+
+<input
+    id="name"
+    type="text"
+    maxlength="100"
+    placeholder="Enter your name"
+    autocomplete="off"
+>
+
+
+<button onclick="nextStep()">
+
+Continue ❤️
+
+</button>
+
+</div>
+
+
+
+<!-- ==============================
+     STEP 2
+============================== -->
+
+<div
+    id="step2"
+    class="step"
+>
+
+<h2>
+💘 What's your crush's name?
+</h2>
+
+
+<input
+    id="crush"
+    type="text"
+    maxlength="100"
+    placeholder="Enter crush's name"
+    autocomplete="off"
+>
+
+
+<button onclick="submitPrank()">
+
+🔮 Find My Love
+
+</button>
+
+</div>
+
+
+
+<!-- ==============================
+     LOADING
+============================== -->
+
+<div id="loading">
+
+<div class="heart">
+❤️
+</div>
+
+
+<h2>
+🔮 Analyzing...
+</h2>
+
+
+<p>
+❤️ Checking love signals...
+</p>
+
+
+<p>
+💘 Checking compatibility...
+</p>
+
+
+<p>
+🔮 Reading destiny...
+</p>
+
+
+<p>
+⏳ Almost done...
+</p>
+
+</div>
+
+
+
+<!-- ==============================
+     RESULT
+============================== -->
+
+<div id="result">
+
+<div class="heart">
+😂
+</div>
+
+
+<h2>
+Analysis Complete!
+</h2>
+
+
+<p id="enteredNames">
+</p>
+
+
+<div class="prank">
+
+😂 YOU'RE PRANKED BY ARAVINDAN! 😂
+
+</div>
+
+
+<p>
+💀 Did you really believe it?
+</p>
+
+
+<button onclick="location.reload()">
+
+🔄 Try Again
+
+</button>
+
+</div>
+
+
+
+<!-- ==============================
+     ADMIN
+============================== -->
+
+<div id="admin">
+
+<h2>
+🔐 Private List
+</h2>
+
+
+<div id="list">
+</div>
+
+
+<button onclick="downloadDatabase()">
+
+💾 Download SQLite Database
+
+</button>
+
+
+<button onclick="clearDatabase()">
+
+🗑️ Clear Database
+
+</button>
+
+
+<button onclick="hideAdmin()">
+
+Close
+
+</button>
+
+</div>
+
+
+
+<!-- ADMIN BUTTON -->
+
+<button
+    class="adminButton"
+    onclick="adminLogin()"
+>
+
+🔐 Admin
+
+</button>
+
+
+</div>
+
+
+
+<!-- ==============================
+     SQL.JS
+============================== -->
+
+<script
+src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/sql-wasm.js">
+</script>
+
+
+
+<script>
+
+/*
+================================================
+SQLITE DATABASE
+================================================
+*/
+
+let SQL = null;
+
+let db = null;
+
+
+
+/*
+================================================
+START SQLITE
+================================================
+*/
+
+async function startSQLite() {
+
+    try {
+
+        SQL = await initSqlJs({
+
+            locateFile: function(file) {
+
+                return "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/" + file;
+
+            }
+
+        });
+
+
+        /*
+        Check whether an existing
+        database exists in browser storage.
+        */
+
+        const saved =
+            localStorage.getItem(
+                "loveSQLiteDB"
+            );
+
+
+        if (saved) {
+
+            const binary =
+                Uint8Array.from(
+                    atob(saved),
+                    function(character) {
+
+                        return character.charCodeAt(0);
+
+                    }
+                );
+
+
+            db =
+                new SQL.Database(binary);
+
+        }
+
+        else {
+
+            /*
+            Create new SQLite database.
+            */
+
+            db =
+                new SQL.Database();
+
+
+            /*
+            Create table.
+            */
+
+            db.run(`
+
+                CREATE TABLE submissions (
+
+                    id
+                    INTEGER
+                    PRIMARY KEY
+                    AUTOINCREMENT,
+
+                    name
+                    TEXT
+                    NOT NULL,
+
+                    crush
+                    TEXT
+                    NOT NULL,
+
+                    submitted_at
+                    TEXT
+                    NOT NULL
+
+                );
+
+            `);
+
+
+            saveDatabase();
+
+        }
+
+
+        console.log(
+            "SQLite database ready."
+        );
+
+
+    }
+
+    catch(error) {
+
+        console.error(error);
+
+        alert(
+            "SQLite failed to load. Check your internet connection and refresh the page."
+        );
+
+    }
+
+}
+
+
+
+/*
+================================================
+SAVE DATABASE
+================================================
+*/
+
+function saveDatabase() {
+
+    if (!db) {
+
+        return;
+
+    }
+
+
+    const data =
+        db.export();
+
+
+    let binary = "";
+
+
+    for (
+        let i = 0;
+        i < data.length;
+        i++
+    ) {
+
+        binary +=
+            String.fromCharCode(
+                data[i]
+            );
+
+    }
+
+
+    localStorage.setItem(
+        "loveSQLiteDB",
+        btoa(binary)
+    );
+
+}
+
+
+
+/*
+================================================
+STEP 1
+================================================
+*/
+
+function nextStep() {
+
+    const name =
+        document
+        .getElementById("name")
+        .value
+        .trim();
+
+
+    if (!name) {
+
+        alert(
+            "Please enter your name 😜"
+        );
+
+        return;
+
+    }
+
+
+    document
+        .getElementById("step1")
+        .classList
+        .remove("active");
+
+
+    document
+        .getElementById("step2")
+        .classList
+        .add("active");
+
+}
+
+
+
+/*
+================================================
+SUBMIT
+================================================
+*/
+
+function submitPrank() {
+
+    if (!db) {
+
+        alert(
+            "Database is still loading. Please wait a moment."
+        );
+
+        return;
+
+    }
+
+
+    const name =
+        document
+        .getElementById("name")
+        .value
+        .trim();
+
+
+    const crush =
+        document
+        .getElementById("crush")
+        .value
+        .trim();
+
+
+    if (!crush) {
+
+        alert(
+            "Please enter your crush's name 😏"
+        );
+
+        return;
+
+    }
+
+
+    /*
+    Current date and time.
+    */
+
+    const time =
+        new Date()
+        .toISOString();
+
+
+    /*
+    Insert data into SQLite.
+    */
+
+    db.run(
+
+        `
+
+        INSERT INTO submissions
+        (name, crush, submitted_at)
+
+        VALUES (?, ?, ?)
+
+        `,
+
+        [
+            name,
+            crush,
+            time
+        ]
+
+    );
+
+
+    /*
+    Save database.
+    */
+
+    saveDatabase();
+
+
+    /*
+    Hide Step 2.
+    */
+
+    document
+        .getElementById("step2")
+        .style
+        .display =
+        "none";
+
+
+    /*
+    Show fake loading.
+    */
+
+    document
+        .getElementById("loading")
+        .style
+        .display =
+        "block";
+
+
+    /*
+    Wait.
+    */
+
+    setTimeout(
+
+        function() {
+
+            document
+                .getElementById("loading")
+                .style
+                .display =
+                "none";
+
+
+            document
+                .getElementById("enteredNames")
+                .textContent =
+                name +
+                " ❤️ " +
+                crush;
+
+
+            document
+                .getElementById("result")
+                .style
+                .display =
+                "block";
+
+        },
+
+        3000
+
+    );
+
+}
+
+
+
+/*
+================================================
+ADMIN LOGIN
+================================================
+*/
+
+function adminLogin() {
+
+    const password =
+        prompt(
+            "Enter admin password:"
+        );
+
+
+    /*
+    CHANGE THIS PASSWORD.
+    */
+
+    if (
+        password !==
+        "kba2008"
+    ) {
+
+        alert(
+            "❌ Wrong password!"
+        );
+
+        return;
+
+    }
+
+
+    showAdmin();
+
+}
+
+
+
+/*
+================================================
+SHOW ADMIN
+================================================
+*/
+
+function showAdmin() {
+
+    document
+        .getElementById("step1")
+        .style
+        .display =
+        "none";
+
+
+    document
+        .getElementById("step2")
+        .style
+        .display =
+        "none";
+
+
+    document
+        .getElementById("loading")
+        .style
+        .display =
+        "none";
+
+
+    document
+        .getElementById("result")
+        .style
+        .display =
+        "none";
+
+
+    document
+        .getElementById("admin")
+        .style
+        .display =
+        "block";
+
+
+    /*
+    Read SQLite table.
+    */
+
+    const result =
+        db.exec(`
+
+            SELECT
+
+                id,
+                name,
+                crush,
+                submitted_at
+
+            FROM submissions
+
+            ORDER BY id DESC
+
+        `);
+
+
+    const list =
+        document
+        .getElementById("list");
+
+
+    list.innerHTML = "";
+
+
+    if (
+
+        result.length === 0 ||
+
+        result[0].values.length === 0
+
+    ) {
+
+        list.innerHTML =
+            "<p>No submissions yet.</p>";
+
+        return;
+
+    }
+
+
+    /*
+    Display rows.
+    */
+
+    result[0].values.forEach(
+
+        function(row) {
+
+            const entry =
+                document
+                .createElement("div");
+
+
+            entry.className =
+                "entry";
+
+
+            const id =
+                escapeHTML(
+                    String(row[0])
+                );
+
+
+            const name =
+                escapeHTML(
+                    String(row[1])
+                );
+
+
+            const crush =
+                escapeHTML(
+                    String(row[2])
+                );
+
+
+            const time =
+                escapeHTML(
+                    String(row[3])
+                );
+
+
+            entry.innerHTML =
+
+                "<b>#"
+                + id
+                + "</b><br>"
+                +
+
+                "👤 "
+                + name
+                + "<br>"
+                +
+
+                "❤️ "
+                + crush
+                + "<br>"
+                +
+
+                "<span class='small'>"
+                + time
+                + "</span>";
+
+
+            list.appendChild(
+                entry
+            );
+
+        }
+
+    );
+
+}
+
+
+
+/*
+================================================
+DOWNLOAD SQLITE DATABASE
+================================================
+*/
+
+function downloadDatabase() {
+
+    if (!db) {
+
+        alert(
+            "Database isn't ready yet."
+        );
+
+        return;
+
+    }
+
+
+    /*
+    Export SQLite database.
+    */
+
+    const data =
+        db.export();
+
+
+    /*
+    Create .db file.
+    */
+
+    const blob =
+        new Blob(
+
+            [data],
+
+            {
+                type:
+                "application/x-sqlite3"
+            }
+
+        );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    /*
+    Create download link.
+    */
+
+    const link =
+        document
+        .createElement("a");
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        "love-prank.db";
+
+
+    document
+        .body
+        .appendChild(link);
+
+
+    link.click();
+
+
+    link.remove();
+
+
+    URL.revokeObjectURL(
+        url
+    );
+
+}
+
+
+
+/*
+================================================
+CLEAR DATABASE
+================================================
+*/
+
+function clearDatabase() {
+
+    const answer =
+        confirm(
+            "Delete ALL submissions?"
+        );
+
+
+    if (!answer) {
+
+        return;
+
+    }
+
+
+    db.run(
+        "DELETE FROM submissions"
+    );
+
+
+    saveDatabase();
+
+
+    showAdmin();
+
+}
+
+
+
+/*
+================================================
+HIDE ADMIN
+================================================
+*/
+
+function hideAdmin() {
+
+    document
+        .getElementById("admin")
+        .style
+        .display =
+        "none";
+
+
+    document
+        .getElementById("step1")
+        .style
+        .display =
+        "block";
+
+}
+
+
+
+/*
+================================================
+ESCAPE HTML
+================================================
+*/
+
+function escapeHTML(text) {
+
+    const div =
+        document
+        .createElement("div");
+
+
+    div.textContent =
+        text;
+
+
+    return div.innerHTML;
+
+}
+
+
+
+/*
+================================================
+START
+================================================
+*/
+
+startSQLite();
+
+</script>
+
+</body>
+</html>
